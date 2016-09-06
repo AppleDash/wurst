@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  url: MyString
+  time: 2016-09-04 01:32:35
+  server: MyString
+  buffer: MyString
+  nick: MyString
+
+two:
+  url: MyString
+  time: 2016-09-04 01:32:35
+  server: MyString
+  buffer: MyString
+  nick: MyString
