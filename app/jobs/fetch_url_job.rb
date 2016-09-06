@@ -3,6 +3,7 @@ require 'shellwords'
 require 'rest-client'
 require 'rack/mime'
 require 'fileutils'
+require 'nokogiri'
 
 # Disabling of certificate checking throughout this class is due to the fact that I want to grab as many links as
 # possible, and some links may not have valid certificates.
@@ -21,18 +22,16 @@ class FetchUrlJob < ActiveJob::Base
   end
 
   def perform(url_id)
-    url = Url.find(url_id)
-    download_dir = "public/system/urls/#{url.id}/"
+    @url = Url.find(url_id)
+    download_dir = "public/system/urls/#{url_id}/"
 
     unless File.directory? download_dir
       FileUtils.makedirs download_dir
     end
 
-    perform_actions url.url, download_dir
+    perform_actions @url.url, download_dir
 
-    url.successful_jobs = @success
-    url.processing = false
-    url.save
+    @url.update processing: false, successful_jobs: @success
   end
 
   def perform_actions(url, base_path)
@@ -45,6 +44,8 @@ class FetchUrlJob < ActiveJob::Base
     perform_action :save_screenshot, url, File.join(base_path, 'screenshot.png')
     if content_type.downcase == 'text/html'
       perform_action :download_html_page, url, File.join(base_path, 'html_download/')
+      title, description = perform_action :detect_props, url
+      @url.update(title: title, snippet: description)
     else
       extension = Rack::Mime::MIME_TYPES.invert[content_type.downcase] || '.dat'
 
@@ -52,6 +53,8 @@ class FetchUrlJob < ActiveJob::Base
     end
   end
 
+  # Perform an action, with the given arguments.
+  # Stores success of the action or failure reason to relevant member variables.
   def perform_action(action, *args)
     @attempted << action
     begin
@@ -72,7 +75,7 @@ class FetchUrlJob < ActiveJob::Base
       raise FetchError, "Received bad response code on initial HEAD: #{response.code}"
     end
 
-    return response.headers[:content_type].split(';')[0] || 'text/plain'
+    response.headers[:content_type].split(';')[0] || 'text/plain'
   rescue => e
     raise FetchError, "Initial HEAD failed: #{e}"
   end
@@ -84,6 +87,23 @@ class FetchUrlJob < ActiveJob::Base
     driver.navigate.to url
     driver.save_screenshot path
     driver.quit
+  end
+
+  # Detect the title and description of a URL
+  def detect_props(url)
+    response = RestClient::Request.execute(:method => :get, :url => url, :headers => {'User-Agent': USER_AGENT}, :verify_ssl => false)
+    doc = Nokogiri::HTML response.body do |config|
+      config.noerror
+    end
+    doc.css('script, link').each { |node| node.remove }
+    title = doc.title
+    description = begin
+      doc.css('meta[name=description]').attr('value').to_s
+    rescue
+      doc.css('body').text.squeeze(' \n').gsub('\n', ' ') rescue nil
+    end
+
+    [title[0..250], description[0..1000]]
   end
 
   # Download a given raw file from a URL to the given path

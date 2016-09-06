@@ -1,1 +1,22 @@
 <% content_for :title, 'URL Index' %>
+<div class="container-fluid" ng-app="urlsApp" ng-controller="UrlsListController" ng-init="init()">
+  <div class="row row-no-padding">
+    <div class="col-md-2">
+      <div class="list-group" id="url-list">
+        <div class="listed-url list-group-item" ng-repeat="url in urls" ng-click="loadUrl(url)">
+          <h5 class="list-group-item-heading">
+            <a href="{{ url.url }}">{{ truncate((url.title ? url.title : url.url), 40) }}</a>
+          </h5>
+          <div class="list-group-item-text">
+            <div>{{ url.snippet ? truncate(url.snippet, 250) : 'No description...' }}</div>
+            <small>Sent by {{ url.nick }} in {{ url.buffer }} on {{ url.server }}.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-10">
+      <iframe frameborder="0" id="url-frame" ng-src="{{ currentUrl.url | trust }}">
+      </iframe>
+    </div>
+  </div>
+</div>
