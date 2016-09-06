@@ -4,7 +4,6 @@
 }
 
 .listed-url:hover:after {
-  cursor: hand !important;
   opacity: 1;
 }
 
@@ -12,11 +11,12 @@
   content: '\A';
   position: absolute;
   width: 100%; height:100%;
-  top:0; left:0;
-  background:rgba(0,0,0,0.2);
+  top: 0; left: 0;
+  background: rgba(0, 0, 0, 0.2);
   opacity: 0;
   transition: all 0.5s;
   -webkit-transition: all 0.5s;
+  z-index: -1;
 }
 
 #url-list {
@@ -34,4 +34,8 @@ body {
 .row-no-padding > [class*="col-"] {
   padding-left: 0 !important;
   padding-right: 0 !important;
+}
+
+.pagination {
+  margin: 0;
 }

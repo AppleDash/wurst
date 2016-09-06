@@ -2,20 +2,27 @@
 <div class="container-fluid" ng-app="urlsApp" ng-controller="UrlsListController" ng-init="init()">
   <div class="row row-no-padding">
     <div class="col-md-2">
+      <!--<nav>
+        <ul class="pagination">
+          <li><a href="#" ng-click="pageBack()">&laquo;</a></li>
+          <li><a href="#" ng-click="pageForward()">&raquo;</a></li>
+        </ul>
+      </nav>-->
       <div class="list-group" id="url-list">
-        <div class="listed-url list-group-item" ng-repeat="url in urls" ng-click="loadUrl(url)">
+        <div class="listed-url list-group-item" ng-repeat="url in urls">
           <h5 class="list-group-item-heading">
-            <a href="{{ url.url }}">{{ truncate((url.title ? url.title : url.url), 40) }}</a>
+            <a href="{{ url.url }}" ng-click="loadUrl(url)">{{ truncate((url.title ? url.title : url.url), 40) }}</a>
           </h5>
           <div class="list-group-item-text">
             <div>{{ url.snippet ? truncate(url.snippet, 250) : 'No description...' }}</div>
+            <div><a ng-click="loadUrl(currentUrl)">Live</a> | <a ng-click="loadOther(screenshotUrl(url))">SS</a> | <a href="#">DL</a></div>
             <small>Sent by {{ url.nick }} in {{ url.buffer }} on {{ url.server }}.</small>
           </div>
         </div>
       </div>
     </div>
     <div class="col-md-10">
-      <iframe frameborder="0" id="url-frame" ng-src="{{ currentUrl.url | trust }}">
+      <iframe frameborder="0" id="url-frame" ng-src="{{ frameUrl | trust }}">
       </iframe>
     </div>
   </div>

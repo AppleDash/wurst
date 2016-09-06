@@ -100,7 +100,7 @@ class FetchUrlJob < ActiveJob::Base
     description = begin
       doc.css('meta[name=description]').attr('value').to_s
     rescue
-      doc.css('body').text.squeeze(' \n').gsub('\n', ' ') rescue nil
+      doc.css('body').text.gsub("\r\n", ' ').gsub("\n", ' ').squeeze(' ') rescue nil
     end
 
     [title[0..250], description[0..1000]]

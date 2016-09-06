@@ -3,7 +3,7 @@ class Api::UrlsController < Api::ApiController
     page = (params[:page] || 1).to_i
     per_page = (params[:per_page] || 25).to_i
 
-    render json: Url.all.order(time: :desc).paginate(page: page, per_page: per_page)
+    render json: {urls: Url.all.order(time: :desc).paginate(page: page, per_page: per_page), total: Url.all.count}
   end
 
   def create
