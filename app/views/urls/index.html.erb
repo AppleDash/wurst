@@ -13,7 +13,7 @@
   <div class="row row-no-padding">
     <div class="col-md-2">
       <div class="list-group" id="url-list">
-        <div class="listed-url list-group-item" dir-paginate="url in urls | itemsPerPage: perPage" total-items="totalUrls" current-page="currentPage">
+        <div class="listed-url list-group-item" dir-paginate="url in urls | itemsPerPage: perPage" total-items="totalUrls" current-page="currentPage" max-size="5">
           <h5 class="list-group-item-heading">
             <a href="{{ url.url }}" ng-click="loadUrl(url)">{{ truncate((url.title ? url.title : url.url), 40) }}</a>
           </h5>
