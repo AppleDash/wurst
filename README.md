@@ -55,6 +55,10 @@ For URLs in the returned array where processing == false, the title, snippet, an
 
 This array is paginated. With no parameters, the API returns page 1, with 15 elements per page. This can be modified with the `page` and `per_page` query parameters.
 
+## Known issues
+
+The live version of many pages may not display properly inline, as many websites block themselves from being embedded in an `<iframe>`.
+
 ## Naming
 ```
 [1:02 AM] AppleDash: What's a good name for a web thing that captures URLs from IRC and lets me view the live version, a screenshot, and downloaded html/css?
