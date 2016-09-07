@@ -2,7 +2,7 @@
 <div class="container-fluid" ng-app="urlsApp" ng-controller="UrlsListController" ng-init="init()">
   <div class="row">
     <div class="col-md-2" style="text-align: center;">
-      <dir-pagination-controls on-page-change="pageChanged(newPageNumber)"></dir-pagination-controls>
+      <dir-pagination-controls on-page-change="pageChanged(newPageNumber)" max-size="5"></dir-pagination-controls>
     </div>
     <div class="col-md-10">
       <div ng-if="error" class="alert alert-danger">
@@ -13,7 +13,7 @@
   <div class="row row-no-padding">
     <div class="col-md-2">
       <div class="list-group" id="url-list">
-        <div class="listed-url list-group-item" dir-paginate="url in urls | itemsPerPage: perPage" total-items="totalUrls" current-page="currentPage" max-size="5">
+        <div class="listed-url list-group-item" dir-paginate="url in urls | itemsPerPage: perPage" total-items="totalUrls" current-page="currentPage">
           <h5 class="list-group-item-heading">
             <a href="{{ url.url }}" ng-click="loadUrl(url)">{{ truncate((url.title ? url.title : url.url), 40) }}</a>
           </h5>
