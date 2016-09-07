@@ -29,12 +29,14 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
     $scope.currentPage = 1;
     $scope.perPage = 15;
     $scope.maxPage = 1;
+    $scope.error = null;
 
     $scope.init = function() {
         $http.get('/api/urls?page=' + $scope.currentPage + '&per_page=' + $scope.perPage).then(function(data) {
             $scope.urls = data.data.urls;
             $scope.maxPage = Math.ceil(data.data.total / $scope.perPage);
             $scope.currentUrl = $scope.urls[0];
+            $scope.error = null;
         }, function(err) {
             $scope.error = err;
         });
@@ -73,6 +75,11 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
         $scope.init();
     };
 
+    $scope.pageSelect = function(pageNum) {
+        $scope.currentPage = pageNum;
+        $scope.init();
+    };
+
     $scope.paginatorPages = function() {
         var pages = [];
         var pageCount = 4;
@@ -82,8 +89,6 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
                 pages.push(i);
             }
 
-            // console.log("less than max: " + pages);
-
             return pages;
         }
 
@@ -91,11 +96,11 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
             pages.push(i);
         }
 
-        for (var i = 0; i <= (pageCount / 2); i++) {
+        pages.push("...");
+
+        for (var i = 0; i <= (pageCount / 2) - 1; i++) {
             pages.push($scope.maxPage - i);
         }
-
-        // console.log("more than max: " + pages);
 
         return pages;
     };

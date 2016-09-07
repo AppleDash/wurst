@@ -4,7 +4,7 @@
     <div class="col-md-2" style="text-align: center;">
       <ul class="pagination">
         <li><a href="#" ng-click="pageBack()">&laquo;</a></li>
-        <li ng-repeat="page in paginatorPages()"><a href="#">{{ page }}</a></li>
+        <li ng-repeat="page in paginatorPages()"><a ng-click="pageSelect(page)">{{ page }}</a></li>
         <li><a href="#" ng-click="pageForward()">&raquo;</a></li>
       </ul>
     </div>
