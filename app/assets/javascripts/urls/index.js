@@ -1,4 +1,4 @@
-var urlsApp = angular.module("urlsApp", []);
+var urlsApp = angular.module("urlsApp", ['angularUtils.directives.dirPagination']);
 
 urlsApp.directive('a', function() {
     return {
@@ -28,13 +28,13 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
     $scope.frameUrl = null;
     $scope.currentPage = 1;
     $scope.perPage = 15;
-    $scope.maxPage = 1;
     $scope.error = null;
+    $scope.totalUrls = 0;
 
     $scope.init = function() {
         $http.get('/api/urls?page=' + $scope.currentPage + '&per_page=' + $scope.perPage).then(function(data) {
             $scope.urls = data.data.urls;
-            $scope.maxPage = Math.ceil(data.data.total / $scope.perPage);
+            $scope.totalUrls = data.total;
             $scope.currentUrl = $scope.urls[0];
             $scope.error = null;
         }, function(err) {
@@ -55,54 +55,9 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
         return "/system/urls/" + url.id + "/screenshot.png";
     };
 
-    $scope.pageForward = function() {
-        $scope.currentPage++;
-
-        if ($scope.currentPage > $scope.maxPage) {
-            $scope.currentPage = $scope.maxPage;
-        }
-
+    $scope.pageChanged = function(page) {
+        $scope.currentPage = page;
         $scope.init();
-    };
-
-    $scope.pageBack = function() {
-        $scope.currentPage--;
-
-        if ($scope.currentPage < 1) {
-            $scope.currentPage = 1;
-        }
-
-        $scope.init();
-    };
-
-    $scope.pageSelect = function(pageNum) {
-        $scope.currentPage = pageNum;
-        $scope.init();
-    };
-
-    $scope.paginatorPages = function() {
-        var pages = [];
-        var pageCount = 4;
-
-        if ($scope.maxPage <= pageCount) {
-            for (var i = 1; i <= $scope.maxPage; i++) {
-                pages.push(i);
-            }
-
-            return pages;
-        }
-
-        for (var i = 1; i <= (pageCount / 2); i++) {
-            pages.push($scope.currentPage - i);
-        }
-
-        pages.push($scope.currentPage);
-
-        for (var i = 1; i <= (pageCount / 2); i++) {
-            pages.push($scope.currentPage + i);
-        }
-
-        return pages;
     };
 
     $scope.truncate = function(string, max_chars) {

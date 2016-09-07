@@ -2,11 +2,7 @@
 <div class="container-fluid" ng-app="urlsApp" ng-controller="UrlsListController" ng-init="init()">
   <div class="row">
     <div class="col-md-2" style="text-align: center;">
-      <ul class="pagination">
-        <li><a href="#" ng-click="pageBack()">&laquo;</a></li>
-        <li ng-repeat="page in paginatorPages()" ng-class="{active: page == currentPage}"><a ng-click="pageSelect(page)">{{ page }}</a></li>
-        <li><a href="#" ng-click="pageForward()">&raquo;</a></li>
-      </ul>
+      <dir-pagination-controls on-page-change="pageChanged(newPageNumber)"></dir-pagination-controls>
     </div>
     <div class="col-md-10">
       <div ng-if="error" class="alert alert-danger">
@@ -16,11 +12,8 @@
   </div>
   <div class="row row-no-padding">
     <div class="col-md-2">
-      <!--<nav>
-
-      </nav>-->
       <div class="list-group" id="url-list">
-        <div class="listed-url list-group-item" ng-repeat="url in urls">
+        <div class="listed-url list-group-item" dir-paginate="url in urls | itemsPerPage: perPage" total-items="totalUrls" current-page="currentPage">
           <h5 class="list-group-item-heading">
             <a href="{{ url.url }}" ng-click="loadUrl(url)">{{ truncate((url.title ? url.title : url.url), 40) }}</a>
           </h5>
