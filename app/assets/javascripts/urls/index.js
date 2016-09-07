@@ -34,7 +34,7 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
     $scope.init = function() {
         $http.get('/api/urls?page=' + $scope.currentPage + '&per_page=' + $scope.perPage).then(function(data) {
             $scope.urls = data.data.urls;
-            $scope.totalUrls = data.total;
+            $scope.totalUrls = data.data.total;
             $scope.currentUrl = $scope.urls[0];
             $scope.error = null;
         }, function(err) {
