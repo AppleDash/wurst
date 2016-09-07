@@ -75,7 +75,7 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
 
     $scope.paginatorPages = function() {
         var pages = [];
-        var pageCount = 8;
+        var pageCount = 4;
 
         if ($scope.maxPage <= pageCount) {
             for (var i = 1; i <= $scope.maxPage; i++) {
@@ -92,7 +92,7 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
         }
 
         for (var i = 0; i <= (pageCount / 2); i++) {
-            pages.unshift($scope.maxPage - i);
+            pages.push($scope.maxPage - i);
         }
 
         // console.log("more than max: " + pages);
