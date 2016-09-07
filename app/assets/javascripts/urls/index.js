@@ -93,13 +93,13 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
         }
 
         for (var i = 1; i <= (pageCount / 2); i++) {
-            pages.push(i);
+            pages.push($scope.currentPage - i);
         }
 
-        pages.push("...");
+        pages.push($scope.currentPage);
 
-        for (var i = 0; i <= (pageCount / 2) - 1; i++) {
-            pages.push($scope.maxPage - i);
+        for (var i = 1; i <= (pageCount / 2) - 1; i++) {
+            pages.push($scope.currentPage + i);
         }
 
         return pages;
