@@ -15,7 +15,7 @@ It allows API consumers to submit URLs for storage and download, and allows the 
 More documentation soon.
 
 The API is fairly simple. Simply send a POST to `/api/urls` with `Content-Type: application/json` and content that looks like this:
-```json
+```javascript
 {
   "url": "<http or https url>",
   "time": "<ISO-formatted date and time at which the URL was sent>",
@@ -27,7 +27,7 @@ The API is fairly simple. Simply send a POST to `/api/urls` with `Content-Type: 
 
 This will return a `url` object that looks something like this:
 
-```json
+```javascript
 {
   "id": 1, // Unique URL ID
   "title": "<URL title, will be filled>",
@@ -44,7 +44,7 @@ This will return a `url` object that looks something like this:
 
 GET to `/api/urls` will return a document that looks like this:
 
-```json
+```javascript
 {
   "urls": [], // List of URL objects
   "total": 0 // Total number of URLs in the database
