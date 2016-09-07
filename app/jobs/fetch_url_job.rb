@@ -29,31 +29,41 @@ class FetchUrlJob < ActiveJob::Base
       FileUtils.makedirs download_dir
     end
 
-    perform_actions @url.url, download_dir
+    perform_actions download_dir
 
     @url.update processing: false, successful_jobs: @success
   end
 
-  def perform_actions(url, base_path)
-    content_type = perform_action :detect_content_type, url
+  def perform_actions(base_path)
+    content_type = perform_action :detect_content_type
 
     unless content_type
       return
     end
 
-    perform_action :save_screenshot, url, File.join(base_path, 'screenshot.png')
-    if content_type.downcase == 'text/html'
-      perform_action :download_html_page, url, File.join(base_path, 'html_download/')
-      title, description = perform_action :detect_props, url
-      @url.update(title: title, snippet: description)
-    else
-      extension = Rack::Mime::MIME_TYPES.invert[content_type.downcase] || '.dat'
+    perform_action :load_in_browser
+    perform_action :save_screenshot, File.join(base_path, 'screenshot.png')
 
-      perform_action :download_raw_file, url, File.join(base_path, "download#{extension}")
+    @url.update(
+        title: perform_action(:detect_title),
+        snippet: perform_action(:detect_description)
+    )
+
+    if content_type.downcase == 'text/html' # It's HTML, so we save the page and resources
+      perform_action :download_html_page, File.join(base_path, 'html_download/')
+    else # Not HTML, so we try to determine a reasonable file extension and save the raw content
+      extension = Rack::Mime::MIME_TYPES.invert[content_type.downcase] || '.dat'
+      perform_action :download_raw_file, File.join(base_path, "download#{extension}")
+    end
+
+    puts @errored
+
+    if @success.include? :load_in_browser
+      @browser.quit
     end
   end
 
-  # Perform an action, with the given arguments.
+  # Perform an action with the given arguments.
   # Stores success of the action or failure reason to relevant member variables.
   def perform_action(action, *args)
     @attempted << action
@@ -68,8 +78,8 @@ class FetchUrlJob < ActiveJob::Base
   end
 
   # Detect the content type of a URL with a HEAD request
-  def detect_content_type(url)
-    response = RestClient::Request.execute(:method => :head, :url => url, :headers => {'User-Agent': USER_AGENT}, :verify_ssl => false)
+  def detect_content_type
+    response = RestClient::Request.execute(:method => :head, :url => @url.url, :headers => {'User-Agent': USER_AGENT}, :verify_ssl => false)
 
     unless response.code == 200
       raise FetchError, "Received bad response code on initial HEAD: #{response.code}"
@@ -80,41 +90,49 @@ class FetchUrlJob < ActiveJob::Base
     raise FetchError, "Initial HEAD failed: #{e}"
   end
 
-  # Save a screenshot of an actual browser(ish), using PhantomJS
-  def save_screenshot(url, path)
-    driver = Selenium::WebDriver.for :phantomjs, :args => '--ignore-ssl-errors=true'
-    driver.manage.window.resize_to 1920, 1080
-    driver.navigate.to url
-    sleep 1
-    driver.save_screenshot path
-    driver.quit
+  # Load the given URL in a Selenium browser and keep it around.
+  def load_in_browser
+    @browser = WebBrowser.new @url.url
   end
 
-  # Detect the title and description of a URL
-  def detect_props(url)
-    response = RestClient::Request.execute(:method => :get, :url => url, :headers => {'User-Agent': USER_AGENT}, :verify_ssl => false)
-    doc = Nokogiri::HTML response.body do |config|
+  # Save a screenshot of an actual browser(ish), using PhantomJS
+  def save_screenshot(path)
+    @browser.save_screenshot @url.url, path
+  end
+
+  # Detect the meta description of a URL.
+  # If none exists, use the first few words from the page.
+  def detect_description
+    doc = Nokogiri::HTML @browser.get_html @url.url do |config|
       config.noerror
     end
-    doc.css('script, link').each { |node| node.remove }
-    title = doc.title
+
+    doc.css('script, link, style').each { |node| node.remove } # Strip out stuff with text content that isn't actual content
+
     description = begin
       doc.css('meta[name=description]').attr('value').to_s
     rescue
-      doc.css('body').text.gsub("\r\n", ' ').gsub("\n", ' ').squeeze(' ') rescue nil
+      doc.css('body').text
+          .gsub(/\r|\n|\t/, ' ')
+          .squeeze(' ') rescue nil
     end
 
-    [title[0..250], description[0..1000]]
+    description[0..1000]
   end
 
-  # Download a given raw file from a URL to the given path
-  def download_raw_file(url, path)
-    wget "-O '#{path.shellescape}' '#{url.shellescape}'"
+  # Detect the <title> title of a URL.
+  def detect_title
+    @browser.get_title(@url.url)[0..250] rescue nil
+  end
+
+  # Download a raw file from the given URL to the given path
+  def download_raw_file(path)
+    wget "-O '#{path.shellescape}' '#{@url.url.shellescape}'"
   end
 
   # Download the page and all of its assets to the given directory. Convert asset URLs to point to the local directory instead.
-  def download_html_page(url, path)
-    wget "--page-requisites --no-host-directories --convert-links --timeout 10 --prefer-family=IPv4 --directory-prefix='#{path.shellescape}' '#{url.shellescape}'"
+  def download_html_page(path)
+    wget "--page-requisites --no-host-directories --convert-links --timeout 10 --prefer-family=IPv4 --directory-prefix='#{path.shellescape}' '#{@url.url.shellescape}'"
   end
 
   def wget(cmdline)
