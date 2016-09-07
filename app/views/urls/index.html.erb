@@ -15,8 +15,8 @@
           </h5>
           <div class="list-group-item-text">
             <div>{{ url.snippet ? truncate(url.snippet, 250) : 'No description...' }}</div>
-            <div><a ng-click="loadUrl(currentUrl)">Live</a> | <a ng-click="loadOther(screenshotUrl(url))">SS</a> | <a href="#">DL</a></div>
-            <small>Sent by {{ url.nick }} in {{ url.buffer }} on {{ url.server }}.</small>
+            <div><a ng-click="loadUrl(url)">Live</a> | <a ng-click="loadOther(screenshotUrl(url))">SS</a> | <a href="#">DL</a></div>
+            <small>Sent by {{ url.nick }} in {{ url.buffer }} on {{ url.server }} at {{ url.time }}.</small>
           </div>
         </div>
       </div>
