@@ -98,7 +98,7 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
 
         pages.push($scope.currentPage);
 
-        for (var i = 1; i <= (pageCount / 2) - 1; i++) {
+        for (var i = 1; i <= (pageCount / 2); i++) {
             pages.push($scope.currentPage + i);
         }
 
