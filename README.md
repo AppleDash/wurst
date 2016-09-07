@@ -12,8 +12,6 @@ It allows API consumers to submit URLs for storage and download, and allows the 
 
 ## API
 
-More documentation soon.
-
 The API is fairly simple. Simply send a POST to `/api/urls` with `Content-Type: application/json` and content that looks like this:
 ```javascript
 {
@@ -42,6 +40,8 @@ This will return a `url` object that looks something like this:
 }
 ```
 
+The `successful_jobs` array will contain a bunch of strings for each of the 'jobs' run on the URL. A 'job' is something like "detect_content_type", "save_screenshot", or "download_html_page". 
+
 GET to `/api/urls` will return a document that looks like this:
 
 ```javascript
@@ -51,8 +51,9 @@ GET to `/api/urls` will return a document that looks like this:
 }
 ```
 
-For URLs in the returned array where processing == false, the title, snippet, and successful_jobs fields will be filled in.
+For URLs in the returned array where processing == false, the title, snippet, and successful_jobs fields will be filled in, but title and snippet may be null if none was able to be detected.
 
+This array is paginated. With no parameters, the API returns page 1, with 15 elements per page. This can be modified with the `page` and `per_page` query parameters.
 
 ## Naming
 ```
