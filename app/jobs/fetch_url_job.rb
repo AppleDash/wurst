@@ -85,7 +85,7 @@ class FetchUrlJob < ActiveJob::Base
     driver = Selenium::WebDriver.for :phantomjs, :args => '--ignore-ssl-errors=true'
     driver.manage.window.resize_to 1920, 1080
     driver.navigate.to url
-    sleep 1000
+    sleep 1
     driver.save_screenshot path
     driver.quit
   end
