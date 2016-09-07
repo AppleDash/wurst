@@ -27,10 +27,12 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
     $scope.currentUrl = null;
     $scope.frameUrl = null;
     $scope.currentPage = 1;
+    $scope.perPage = 15;
 
     $scope.init = function() {
-        $http.get('/api/urls?page=' + $scope.currentPage).then(function(data) {
+        $http.get('/api/urls?page=' + $scope.currentPage + "&per_page=" + $scope.perPage).then(function(data) {
             $scope.urls = data.data.urls;
+            $scope.maxPage = data.data.total / $scope.perPage;
             $scope.currentUrl = $scope.urls[0];
         }, function(err) {
             console.log(err);
@@ -48,6 +50,26 @@ urlsApp.controller('UrlsListController', ['$scope', '$http', function($scope, $h
 
     $scope.screenshotUrl = function(url) {
         return "/system/urls/" + url.id + "/screenshot.png";
+    };
+
+    $scope.pageForward = function() {
+        $scope.currentPage++;
+
+        if ($scope.currentPage > $scope.maxPage) {
+            $scope.currentPage = $scope.maxPage;
+        }
+
+        $scope.init();
+    };
+
+    $scope.pageBack = function() {
+        $scope.currentPage--;
+
+        if ($scope.currentPage < 1) {
+            $scope.currentPage = 1;
+        }
+
+        $scope.init();
     };
 
     $scope.truncate = function(string, max_chars) {
